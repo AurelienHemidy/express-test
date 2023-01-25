@@ -1,10 +1,11 @@
 const express = require('express');
-const favicon = require('serve-favicon');
 
 // MIDDLEWARES
+const favicon = require('serve-favicon');
 const pokemonRouter = require('./src/routes/pokemonRoutes');
 const userRouter = require('./src/routes/userRoutes');
 const resourceNotFound = require('./src/routes/404');
+const cors = require('cors');
 
 // DATABASE
 const sequelize = require('./src/db/sequelize');
@@ -21,7 +22,8 @@ app
   .all('*', auth)
   .use(process.env.API_URL, pokemonRouter)
   .use(process.env.LOGIN_URL, userRouter)
-  .use(resourceNotFound);
+  .use(resourceNotFound)
+  .use(cors());
 
 sequelize.initDb();
 
