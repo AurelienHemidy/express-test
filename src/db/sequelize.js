@@ -5,15 +5,31 @@ let pokemons = require('./mock-pockemon.js');
 
 const bcrypt = require('bcrypt');
 
-const sequelize = new Sequelize('pokedex', 'root', '', {
-  host: 'localhost',
-  dialect: 'mariadb',
-  port: 3307,
-  dialectOptions: {
-    timezone: 'Etc/GMT-2',
-  },
-  logging: false,
-});
+let sequelize;
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  sequelize = new Sequelize('pokedex', 'root', '', {
+    host: 'localhost',
+    dialect: 'mariadb',
+    port: 3307,
+    dialectOptions: {
+      timezone: 'Etc/GMT-2',
+    },
+    logging: true,
+  });
+} else {
+  sequelize = new Sequelize('pokedex', 'root', '', {
+    host: 'localhost',
+    dialect: 'mariadb',
+    port: 3307,
+    dialectOptions: {
+      timezone: 'Etc/GMT-2',
+    },
+    logging: false,
+  });
+}
 
 sequelize
   .authenticate()
@@ -28,7 +44,7 @@ const Pokemon = PokemonModel(sequelize, DataTypes);
 const User = UserModel(sequelize, DataTypes);
 
 const initDb = () => {
-  sequelize.sync({ force: true }).then(() => {
+  sequelize.sync({ force: !isProduction }).then(() => {
     console.log('La base de données "Pokedex" a bien été synchronisée.');
 
     pokemons.forEach((pokemon) =>
